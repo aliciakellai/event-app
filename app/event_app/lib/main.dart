@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
+import 'event_detail_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'create_event_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -38,23 +43,19 @@ class _MyHomePageState extends State<MyHomePage> {
     events = ApiService.fetchEvents();
   }
 
+  void _refreshEvents() {
+    setState(() {
+      events = ApiService.fetchEvents();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(
-  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-  title: const Text("Liste des événements"),
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.add),
-      onPressed: () {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Bouton + cliqué !')),
-  );
-},
-    ),
-  ],
-),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Liste des événements"),
+      ),
       body: FutureBuilder<List<dynamic>>(
         future: events,
         builder: (context, snapshot) {
@@ -71,12 +72,48 @@ class _MyHomePageState extends State<MyHomePage> {
                 final event = snapshot.data![index];
                 return ListTile(
                   title: Text(event["title"] ?? "Sans titre"),
-                  subtitle: Text(event["date"] ?? ""),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(event["date"] ?? ""),
+                      const Text(
+                        "Appuyez pour plus d'informations",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios,
+                      size: 16, color: Colors.grey),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailPage(event: event),
+                      ),
+                    ).then((updated) {
+                      if (updated == true) {
+                        _refreshEvents();
+                      }
+                    });
+                  },
                 );
               },
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateEventPage()),
+          ).then((created) {
+            if (created == true) {
+              _refreshEvents();
+            }
+          });
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
