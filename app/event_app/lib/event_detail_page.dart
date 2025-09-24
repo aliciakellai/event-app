@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
-import 'edit_event_page.dart'; // 👈 à importer
+import 'edit_event_page.dart';
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -12,7 +12,8 @@ class EventDetailPage extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Confirmer la suppression"),
-        content: const Text("Êtes-vous sûr de vouloir supprimer cet événement ?"),
+        content:
+            const Text("Êtes-vous sûr de vouloir supprimer cet événement ?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -35,7 +36,7 @@ class EventDetailPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Événement supprimé avec succès")),
         );
-        Navigator.pop(context, true); // Retour à la liste
+        Navigator.pop(context, true); // Retour à la liste avec refresh
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur lors de la suppression : $e")),
@@ -53,49 +54,49 @@ class EventDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Titre : ${event["title"]}", style: const TextStyle(fontSize: 20)),
+            Text("Titre : ${event["title"]}",
+                style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 10),
             Text("Description : ${event["description"] ?? ""}"),
             const SizedBox(height: 10),
             Text("Date : ${event["date"] ?? ""}"),
             const Spacer(),
 
-            // 👇 Les deux boutons centrés
-            Column(
-              children: [
-                ElevatedButton(
+            // 🔹 Boutons affichés uniquement pour ROLE_ADMIN
+            if (ApiService.hasRole("ROLE_ADMIN")) ...[
+              Center(
+                child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    backgroundColor: Colors.red,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
+                  onPressed: () => _confirmDelete(context),
+                  child: const Text("Supprimer cet événement"),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditEventPage(event: event),
-                      ),
+                          builder: (context) => EditEventPage(event: event)),
                     ).then((updated) {
                       if (updated == true) {
-                        Navigator.pop(context, true); // retour liste + refresh
+                        Navigator.pop(context, true); // refresh à la liste
                       }
                     });
                   },
                   child: const Text("Modifier cet événement"),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  onPressed: () => _confirmDelete(context),
-                  child: const Text("Supprimer cet événement"),
-                ),
-              ],
-            ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 }
+

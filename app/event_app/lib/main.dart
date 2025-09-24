@@ -3,6 +3,7 @@ import 'api_service.dart';
 import 'event_detail_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'create_event_page.dart';
+import 'login_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,8 +11,21 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool get isLoggedIn => ApiService.isLoggedIn;
+
+  void _handleLogout() {
+    setState(() {
+      ApiService.logout();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +34,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Liste des événements'),
+      home: isLoggedIn
+          ? MyHomePage(onLogout: _handleLogout)
+          : LoginPage(
+              onLogin: () {
+                setState(() {}); // Rafraîchit après connexion
+              },
+            ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  final VoidCallback onLogout;
 
-  final String title;
+  const MyHomePage({super.key, required this.onLogout});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -55,6 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Liste des événements"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: widget.onLogout,
+          ),
+        ],
       ),
       body: FutureBuilder<List<dynamic>>(
         future: events,
@@ -102,19 +128,20 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateEventPage()),
-          ).then((created) {
-            if (created == true) {
-              _refreshEvents();
-            }
-          });
-        },
-        child: const Icon(Icons.add),
-      ),
+
+      // 🔹 Bouton d’ajout visible seulement pour ROLE_ADMIN
+      floatingActionButton: ApiService.hasRole("ROLE_ADMIN")
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CreateEventPage()),
+                ).then((_) => _refreshEvents());
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }
