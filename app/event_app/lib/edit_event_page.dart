@@ -21,7 +21,8 @@ class _EditEventPageState extends State<EditEventPage> {
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.event["title"]);
-    descriptionController = TextEditingController(text: widget.event["description"]);
+    descriptionController =
+        TextEditingController(text: widget.event["description"]);
     dateController = TextEditingController(text: widget.event["date"]);
   }
 
@@ -30,7 +31,6 @@ class _EditEventPageState extends State<EditEventPage> {
       try {
         final parsedDate = DateTime.tryParse(dateController.text);
         if (parsedDate == null) {
-          // On force l'erreur du champ Date
           _formKey.currentState!.validate();
           return;
         }
@@ -49,7 +49,7 @@ class _EditEventPageState extends State<EditEventPage> {
           const SnackBar(content: Text("Événement modifié avec succès")),
         );
 
-        Navigator.pop(context, true); // retour avec indicateur de mise à jour
+        Navigator.pop(context, true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur lors de la modification : $e")),
@@ -66,7 +66,7 @@ class _EditEventPageState extends State<EditEventPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
               TextFormField(
                 controller: titleController,
@@ -74,12 +74,16 @@ class _EditEventPageState extends State<EditEventPage> {
                 validator: (value) =>
                     value == null || value.isEmpty ? "Titre requis" : null,
               ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: descriptionController,
                 decoration: const InputDecoration(labelText: "Description"),
                 validator: (value) =>
                     value == null || value.isEmpty ? "Description requise" : null,
               ),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: dateController,
                 decoration: const InputDecoration(
@@ -95,7 +99,8 @@ class _EditEventPageState extends State<EditEventPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: _submit,
                 child: const Text("Enregistrer les modifications"),

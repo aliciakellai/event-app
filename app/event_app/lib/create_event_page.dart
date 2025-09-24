@@ -18,15 +18,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Parse de la date
         final parsedDate = DateTime.tryParse(dateController.text);
         if (parsedDate == null) {
-          // ⚠️ Ici on ne met plus de SnackBar, on laisse le validator gérer
           setState(() {});
           return;
         }
 
-        // Formatage correct
         final formattedDate =
             DateFormat('yyyy-MM-dd HH:mm:ss').format(parsedDate);
 
@@ -36,7 +33,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
           date: formattedDate,
         );
 
-        // Succès → petit message discret + retour
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Événement créé avec succès")),
         );
@@ -57,7 +53,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView( 
             children: [
               TextFormField(
                 controller: titleController,
@@ -65,12 +61,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 validator: (value) =>
                     value == null || value.isEmpty ? "Titre requis" : null,
               ),
+              const SizedBox(height: 16), 
+
               TextFormField(
                 controller: descriptionController,
                 decoration: const InputDecoration(labelText: "Description"),
                 validator: (value) =>
                     value == null || value.isEmpty ? "Description requise" : null,
               ),
+              const SizedBox(height: 16), 
+
               TextFormField(
                 controller: dateController,
                 decoration: const InputDecoration(
@@ -87,7 +87,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24), 
+
               ElevatedButton(
                 onPressed: _submit,
                 child: const Text("Créer"),
@@ -99,3 +100,4 @@ class _CreateEventPageState extends State<CreateEventPage> {
     );
   }
 }
+

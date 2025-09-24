@@ -12,17 +12,14 @@ class EventDetailPage extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Confirmer la suppression"),
-        content:
-            const Text("Êtes-vous sûr de vouloir supprimer cet événement ?"),
+        content: const Text("Êtes-vous sûr de vouloir supprimer cet événement ?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text("Annuler"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text("Supprimer"),
           ),
@@ -49,52 +46,73 @@ class EventDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(event["title"] ?? "Détails")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Titre : ${event["title"]}",
-                style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 10),
-            Text("Description : ${event["description"] ?? ""}"),
-            const SizedBox(height: 10),
-            Text("Date : ${event["date"] ?? ""}"),
-            const Spacer(),
-
-            // 🔹 Boutons affichés uniquement pour ROLE_ADMIN
-            if (ApiService.hasRole("ROLE_ADMIN")) ...[
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(event["title"] ?? "Sans titre",
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Text(event["description"] ?? "",
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(Icons.event, size: 18, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Text(event["date"] ?? "",
+                          style: const TextStyle(color: Colors.grey)),
+                    ],
                   ),
-                  onPressed: () => _confirmDelete(context),
-                  child: const Text("Supprimer cet événement"),
-                ),
+                  const SizedBox(height: 24),
+
+                  // 🔹 Boutons visibles seulement pour ADMIN
+                  if (ApiService.hasRole("ROLE_ADMIN")) ...[
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                      onPressed: () => _confirmDelete(context),
+                      label: const Text("Supprimer cet événement"),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.edit, color: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditEventPage(event: event)),
+                        ).then((updated) {
+                          if (updated == true) {
+                            Navigator.pop(context, true);
+                          }
+                        });
+                      },
+                      label: const Text("Modifier cet événement"),
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 10),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EditEventPage(event: event)),
-                    ).then((updated) {
-                      if (updated == true) {
-                        Navigator.pop(context, true); // refresh à la liste
-                      }
-                    });
-                  },
-                  child: const Text("Modifier cet événement"),
-                ),
-              ),
-            ],
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
