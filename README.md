@@ -53,7 +53,7 @@ Avant de lancer l'application, assurez-vous d'avoir installé :
 - [Docker](https://docs.docker.com/get-docker) => (pour MySQL & phpMyAdmin)
 - [Node.js & npm](https://nodejs.org/) => (si vous utilisez Symfony encore avec Webpack encore)
 
-Les étapes détaillées d'installation sont disponibles dans la documentation.
+Les étapes détaillées d'installation sont disponibles dans la documentation. (event-app/docs/Les_Toiles_De_Minuit.pdf)
 
 
 ------------------------------------------------
@@ -120,7 +120,7 @@ Les étapes détaillées d'installation sont disponibles dans la documentation.
 Pour les explications détaillées, voir la documentation complète dans le dossier \docs.
 - Installation pas à pas (Symfony, Flutter, Docker)
 - Utilisation de l'application
-- Gestion des rôles et authentification
+- Architecture du projet
 - Schéma de la base de données
 
 
