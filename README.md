@@ -90,6 +90,10 @@ Les étapes détaillées d'installation sont disponibles dans la documentation.
 
 4. Authentification :
 
+*Deux comptes ont été préconfigurés. Vous pouvez les utiliser si vous ne souhaitez pas créer de comptes.*
+*Compte Admin : **Email :** admin@test.com **Mot de passe :** admin*
+*Compte User : **Email :** user@test.com **Mot de passe :** user*
+
     4.a. Créez un utilisateur admin manuellement :
         php bin/console security:hash-password
 
